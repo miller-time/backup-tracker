@@ -246,11 +246,10 @@
 
 ## Data Backend
 
-* settings: global_ignore_pattern
 * sources: path
 * backups: path
 * backup_sources: backup, source, last_synced
-* source_ignore_patterns: source, pattern
+* store these in typesafe config file?
 
 ## Computations
 
