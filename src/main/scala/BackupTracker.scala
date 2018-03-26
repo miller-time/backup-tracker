@@ -12,6 +12,7 @@ object BackupTracker extends JFXApp {
   stage = new PrimaryStage {
     title = "Backup Tracker"
     scene = new Scene(800, 600) {
+      stylesheets = List(getClass.getResource("backupTracker.css").toExternalForm)
       root = new BorderPane {
         top = new VBox {
           center = new SplitPane {
