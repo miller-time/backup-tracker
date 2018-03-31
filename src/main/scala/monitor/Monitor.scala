@@ -1,13 +1,24 @@
 package monitor
 
-import models.Model
+import models.{BackupLocation, Model, Source}
+import scalafx.scene.Node
 import scalafx.scene.control.{Label, Separator, TextField}
 import scalafx.scene.layout.{BorderPane, VBox}
 
+import scala.collection.mutable
+
 object Monitor extends BorderPane {
 
+  val sourcesVBox: VBox = new VBox {
+    spacing = 2
+  }
+
+  val backupLocationsVBox: VBox = new VBox {
+    spacing = 2
+  }
+
   def apply() = {
-    val sources = new VBox {
+    val sourcesContainer = new VBox {
       spacing = 4
       children = List(
         new Label {
@@ -15,18 +26,11 @@ object Monitor extends BorderPane {
           styleClass = Seq("monitor-header")
         },
         new Separator,
-        new VBox {
-          spacing = 2
-          children = Model.sources.map(source => new TextField {
-            text = source.name
-            editable = false
-            styleClass = Seq("monitor-text")
-          })
-        }
+        sourcesVBox
       )
     }
 
-    val backupLocations = new VBox {
+    val backupLocationsContainer = new VBox {
       spacing = 4
       children = List(
         new Label {
@@ -34,26 +38,51 @@ object Monitor extends BorderPane {
           styleClass = Seq("monitor-header")
         },
         new Separator,
-        new VBox {
-          spacing = 2
-          children = Model.backupLocations.map(backupLocation => new TextField {
-            text = backupLocation.name
-            editable = false
-            styleClass = Seq("monitor-text")
-          })
-        }
+        backupLocationsVBox
       )
     }
+
+    initChangeHandlers()
 
     new BorderPane {
       styleClass = Seq("monitor")
       top = new VBox {
         spacing = 10
         children = List(
-          sources,
-          backupLocations
+          sourcesContainer,
+          backupLocationsContainer
         )
       }
     }
+  }
+
+  def initChangeHandlers() = {
+    val sourcesChanged = (s: Seq[Source]) => {
+      sourcesVBox.children = buildSources(s)
+    }
+    Model.onSourcesChange(sourcesChanged)
+    sourcesChanged(List())
+
+    val backupLocationsChanged = (b: Seq[BackupLocation]) => {
+      backupLocationsVBox.children = buildBackupLocations(b)
+    }
+    Model.onBackupLocationsChange(backupLocationsChanged)
+    backupLocationsChanged(List())
+  }
+
+  private def buildSources(sourceModels: Seq[Source]): mutable.MutableList[Node] = {
+    Model.sources.map(source => new TextField {
+      text = source.name
+      editable = false
+      styleClass = Seq("monitor-text")
+    })
+  }
+
+  private def buildBackupLocations(backupLocationModels: Seq[BackupLocation]): mutable.MutableList[Node] = {
+    Model.backupLocations.map(backupLocation => new TextField {
+      text = backupLocation.name
+      editable = false
+      styleClass = Seq("monitor-text")
+    })
   }
 }
