@@ -1,20 +1,15 @@
 package models
 
-import java.io.File
+import models.StoreFileUtil.StoreContents
 
 import scala.collection.mutable
-import scala.io.Source
 
 object Store {
 
   type ModelValues = Either[Seq[BackupSource], Seq[BackupDestination]]
   type ChangeHandler = (ModelValues) => Unit
 
-  val json = readStoreFile()
-  json match {
-    case Some(s) => println(s)
-    case None => println("file not found")
-  }
+  val storeContents = StoreFileUtil.read()
 
   /*
    * internal list of change handlers that have been registered
@@ -35,7 +30,8 @@ object Store {
   /*
    * backup sources (files to back up)
    */
-  private val _backupSources: mutable.MutableList[BackupSource] = mutable.MutableList()
+  private val _backupSources: mutable.MutableList[BackupSource] =
+    mutable.MutableList() ++ storeContents.backupSources.map(BackupSource)
 
   def backupSources = _backupSources
 
@@ -48,7 +44,8 @@ object Store {
   /*
    * backup destinations (destinations to save backups)
    */
-  private val _backupDestinations: mutable.MutableList[BackupDestination] = mutable.MutableList()
+  private val _backupDestinations: mutable.MutableList[BackupDestination] =
+    mutable.MutableList() ++ storeContents.backupDestinations.map(BackupDestination)
 
   def backupDestinations = _backupDestinations
 
@@ -56,18 +53,5 @@ object Store {
     _backupDestinations += BackupDestination(path)
 
     changeHandlers.foreach(handler => handler(Right(backupDestinations)))
-  }
-
-  def readStoreFile(): Option[String] = {
-    val storeFilePath = System.getProperty("user.home")
-
-    try {
-      val source = Source.fromFile(storeFilePath + File.separator + ".backup-tracker.json")
-      val contents = source.mkString
-      source.close()
-      Some(contents)
-    } catch {
-      case _: java.io.FileNotFoundException => None
-    }
   }
 }
