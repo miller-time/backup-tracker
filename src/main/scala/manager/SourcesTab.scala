@@ -1,6 +1,6 @@
 package manager
 
-import models.Model
+import models.Store
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Insets
@@ -47,7 +47,7 @@ object SourcesTab extends Tab {
     }
 
     addSourceDialog.showAndWait() match {
-      case Some(s: String) => Model.addSource(s)
+      case Some(s: String) => Store.addSource(s)
       case _ =>
     }
   }

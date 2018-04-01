@@ -1,6 +1,7 @@
 package monitor
 
-import models.{BackupLocation, Model, Source}
+import models.Store.ChangeHandler
+import models.{BackupLocation, Source, Store}
 import scalafx.scene.Node
 import scalafx.scene.control.{Label, Separator, TextField}
 import scalafx.scene.layout.{BorderPane, VBox}
@@ -36,7 +37,7 @@ object Monitor extends BorderPane {
       )
     }
 
-    initChangeHandlers()
+    initChangeHandler()
 
     new BorderPane {
       styleClass = Seq("monitor")
@@ -50,29 +51,26 @@ object Monitor extends BorderPane {
     }
   }
 
-  def initChangeHandlers() = {
-    val sourcesChanged = (s: Seq[Source]) => {
-      sourcesVBox.children = buildSources(s)
+  def initChangeHandler() = {
+    val handler: ChangeHandler = {
+      case Left(m) => sourcesVBox.children = buildSources(m)
+      case Right(m) => backupLocationsVBox.children = buildBackupLocations(m)
     }
-    Model.onSourcesChange(sourcesChanged)
-    sourcesChanged(List())
-
-    val backupLocationsChanged = (b: Seq[BackupLocation]) => {
-      backupLocationsVBox.children = buildBackupLocations(b)
-    }
-    Model.onBackupLocationsChange(backupLocationsChanged)
-    backupLocationsChanged(List())
+    Store.onChange(handler)
   }
 
   private def buildSources(sourceModels: Seq[Source]): mutable.MutableList[Node] = {
-    if (Model.sources.isEmpty)
+    if (Store.sources.isEmpty)
       mutable.MutableList(buildTextField("No sources added"))
     else
-      Model.sources.map(source => buildTextField(source.name))
+      Store.sources.map(source => buildTextField(source.name))
   }
 
   private def buildBackupLocations(backupLocationModels: Seq[BackupLocation]): mutable.MutableList[Node] = {
-    Model.backupLocations.map(backupLocation => buildTextField(backupLocation.name))
+    if (Store.backupLocations.isEmpty)
+      mutable.MutableList(buildTextField("No backup locations added"))
+    else
+      Store.backupLocations.map(backupLocation => buildTextField(backupLocation.name))
   }
 
   private def buildSectionLabel(textContent: String): Label = {
