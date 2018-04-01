@@ -21,10 +21,7 @@ object Monitor extends BorderPane {
     val sourcesContainer = new VBox {
       spacing = 4
       children = List(
-        new Label {
-          text = "Sources"
-          styleClass = Seq("monitor-header")
-        },
+        buildSectionLabel("Sources"),
         new Separator,
         sourcesVBox
       )
@@ -33,10 +30,7 @@ object Monitor extends BorderPane {
     val backupLocationsContainer = new VBox {
       spacing = 4
       children = List(
-        new Label {
-          text = "Backup Locations"
-          styleClass = Seq("monitor-header")
-        },
+        buildSectionLabel("Backup Locations"),
         new Separator,
         backupLocationsVBox
       )
@@ -71,18 +65,25 @@ object Monitor extends BorderPane {
   }
 
   private def buildSources(sourceModels: Seq[Source]): mutable.MutableList[Node] = {
-    Model.sources.map(source => new TextField {
-      text = source.name
-      editable = false
-      styleClass = Seq("monitor-text")
-    })
+    Model.sources.map(source => buildTextField(source.name))
   }
 
   private def buildBackupLocations(backupLocationModels: Seq[BackupLocation]): mutable.MutableList[Node] = {
-    Model.backupLocations.map(backupLocation => new TextField {
-      text = backupLocation.name
+    Model.backupLocations.map(backupLocation => buildTextField(backupLocation.name))
+  }
+
+  private def buildSectionLabel(textContent: String): Label = {
+    new Label {
+      text = textContent
+      styleClass = Seq("monitor-header")
+    }
+  }
+
+  private def buildTextField(textContent: String): TextField = {
+    new TextField {
+      text = textContent
       editable = false
       styleClass = Seq("monitor-text")
-    })
+    }
   }
 }
