@@ -1,8 +1,9 @@
 package models
 
-import java.io.File
+import java.io.{File, PrintWriter}
 
 import org.json4s._
+import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods._
 
 import scala.io.Source
@@ -45,6 +46,13 @@ object StoreFileUtil {
     }
   }
 
+  def write(storeContents: StoreContents) = {
+    writeStoreFile(pretty(render(
+      ("sources" -> storeContents.backupSources) ~
+      ("destinations" -> storeContents.backupDestinations)
+    )))
+  }
+
   private def readStoreFile(): Option[String] = {
     try {
       val source = Source.fromFile(storeFilePath)
@@ -54,5 +62,11 @@ object StoreFileUtil {
     } catch {
       case _: java.io.FileNotFoundException => None
     }
+  }
+
+  private def writeStoreFile(json: String) = {
+    val writer = new PrintWriter(new File(storeFilePath))
+    writer.write(json)
+    writer.close()
   }
 }

@@ -38,6 +38,11 @@ object Store {
   def addBackupSource(path: String) = {
     _backupSources += BackupSource(path)
 
+    StoreFileUtil.write(StoreContents(
+      backupSources.map(_.name).toList,
+      backupDestinations.map(_.name).toList)
+    )
+
     changeHandlers.foreach(handler => handler(Left(backupSources)))
   }
 
@@ -51,6 +56,11 @@ object Store {
 
   def addBackupDestination(path: String) = {
     _backupDestinations += BackupDestination(path)
+
+    StoreFileUtil.write(StoreContents(
+      backupSources.map(_.name).toList,
+      backupDestinations.map(_.name).toList)
+    )
 
     changeHandlers.foreach(handler => handler(Right(backupDestinations)))
   }
