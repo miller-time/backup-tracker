@@ -65,7 +65,10 @@ object Monitor extends BorderPane {
   }
 
   private def buildSources(sourceModels: Seq[Source]): mutable.MutableList[Node] = {
-    Model.sources.map(source => buildTextField(source.name))
+    if (Model.sources.isEmpty)
+      mutable.MutableList(buildTextField("No sources added"))
+    else
+      Model.sources.map(source => buildTextField(source.name))
   }
 
   private def buildBackupLocations(backupLocationModels: Seq[BackupLocation]): mutable.MutableList[Node] = {

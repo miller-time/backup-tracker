@@ -5,11 +5,7 @@ import scala.collection.mutable
 object Model {
   type ChangeHandler[T] = Function[Seq[T], Unit]
 
-  private val _sources: mutable.MutableList[Source] = mutable.MutableList(
-    Source("C:\\Documents"),
-    Source("C:\\Movies"),
-    Source("C:\\Music")
-  )
+  private val _sources: mutable.MutableList[Source] = mutable.MutableList()
 
   def sources = _sources
 
