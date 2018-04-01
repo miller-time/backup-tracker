@@ -39,12 +39,7 @@ object Store {
   /*
    * backup locations (destinations to save backups)
    */
-  private val _backupLocations: mutable.MutableList[BackupLocation] = mutable.MutableList(
-//    BackupLocation("/Volumes/BACKUPS"),
-//    BackupLocation("/Volumes/OFFSITE_BACKUPS"),
-//    BackupLocation("/Volumes/OFFSITE_BACKUPS/Movies"),
-//    BackupLocation("/Volumes/OFFSITE_BACKUPS/Music")
-  )
+  private val _backupLocations: mutable.MutableList[BackupLocation] = mutable.MutableList()
 
   def backupLocations = _backupLocations
 
