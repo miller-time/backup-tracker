@@ -4,7 +4,7 @@ import scala.collection.mutable
 
 object Store {
 
-  type ModelValues = Either[Seq[Source], Seq[BackupLocation]]
+  type ModelValues = Either[Seq[BackupSource], Seq[BackupDestination]]
   type ChangeHandler = (ModelValues) => Unit
 
   /*
@@ -19,33 +19,33 @@ object Store {
     changeHandlers += handler
 
     // initialize caller with current state
-    handler(Left(sources))
-    handler(Right(backupLocations))
+    handler(Left(backupSources))
+    handler(Right(backupDestinations))
   }
 
   /*
    * backup sources (files to back up)
    */
-  private val _sources: mutable.MutableList[Source] = mutable.MutableList()
+  private val _backupSources: mutable.MutableList[BackupSource] = mutable.MutableList()
 
-  def sources = _sources
+  def backupSources = _backupSources
 
-  def addSource(path: String) = {
-    _sources += Source(path)
+  def addBackupSource(path: String) = {
+    _backupSources += BackupSource(path)
 
-    changeHandlers.foreach(handler => handler(Left(sources)))
+    changeHandlers.foreach(handler => handler(Left(backupSources)))
   }
 
   /*
-   * backup locations (destinations to save backups)
+   * backup destinations (destinations to save backups)
    */
-  private val _backupLocations: mutable.MutableList[BackupLocation] = mutable.MutableList()
+  private val _backupDestinations: mutable.MutableList[BackupDestination] = mutable.MutableList()
 
-  def backupLocations = _backupLocations
+  def backupDestinations = _backupDestinations
 
-  def addBackupLocation(path: String) = {
-    _backupLocations += BackupLocation(path)
+  def addBackupDestination(path: String) = {
+    _backupDestinations += BackupDestination(path)
 
-    changeHandlers.foreach(handler => handler(Right(backupLocations)))
+    changeHandlers.foreach(handler => handler(Right(backupDestinations)))
   }
 }

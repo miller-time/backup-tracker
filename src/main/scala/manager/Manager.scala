@@ -5,13 +5,13 @@ import scalafx.scene.control.TabPane
 object Manager extends TabPane {
 
   def apply() = {
-    val sources = SourcesTab()
-    val backupLocations = BackupLocationsTab()
+    val backupSources = BackupSourcesTab()
+    val backupDestinations = BackupDestinationsTab()
 
     new TabPane {
       tabs = List(
-        sources,
-        backupLocations
+        backupSources,
+        backupDestinations
       )
     }
   }
