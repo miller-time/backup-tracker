@@ -1,6 +1,8 @@
 package manager
 
-import models.Store
+import actors.BackupTrackerActors
+import actors.StoreActor.AddSource
+import models.BackupSource
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Insets
@@ -46,8 +48,9 @@ object BackupSourcesTab extends Tab {
         null
     }
 
+    val store = BackupTrackerActors.store
     addBackupSourceDialog.showAndWait() match {
-      case Some(s: String) => Store.addBackupSource(s)
+      case Some(s: String) => store ! AddSource(BackupSource(s))
       case _ =>
     }
   }

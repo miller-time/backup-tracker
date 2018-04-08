@@ -1,7 +1,10 @@
 package monitor
 
-import models.Store.ChangeHandler
-import models.{BackupDestination, BackupSource, Store}
+import actors.BackupTrackerActors
+import actors.StoreActor.{OnChange, Subscribe}
+import akka.actor.{Actor, ActorLogging, Props}
+import models.{BackupDestination, BackupSource}
+import scalafx.application.Platform
 import scalafx.scene.Node
 import scalafx.scene.control.{Label, Separator, TextField}
 import scalafx.scene.layout.{BorderPane, VBox}
@@ -9,7 +12,6 @@ import scalafx.scene.layout.{BorderPane, VBox}
 import scala.collection.mutable
 
 object Monitor extends BorderPane {
-
   val backupSourcesVBox: VBox = new VBox {
     spacing = 2
   }
@@ -18,7 +20,20 @@ object Monitor extends BorderPane {
     spacing = 2
   }
 
-  def apply() = {
+  class MonitorActor extends Actor with ActorLogging {
+    BackupTrackerActors.store ! Subscribe
+
+    def receive = {
+      case OnChange(sources, destinations) =>
+        log.debug("MonitorActor.OnChange")
+        Platform.runLater {
+          backupSourcesVBox.children = buildBackupSources(sources)
+          backupDestinationsVBox.children = buildBackupDestinations(destinations)
+        }
+    }
+  }
+
+  def apply(): BorderPane = {
     val backupSourcesContainer = new VBox {
       spacing = 4
       children = List(
@@ -37,7 +52,7 @@ object Monitor extends BorderPane {
       )
     }
 
-    initChangeHandler()
+    BackupTrackerActors.system.actorOf(Props(new MonitorActor))
 
     new BorderPane {
       styleClass = Seq("monitor")
@@ -51,26 +66,22 @@ object Monitor extends BorderPane {
     }
   }
 
-  def initChangeHandler() = {
-    val handler: ChangeHandler = {
-      case Left(m) => backupSourcesVBox.children = buildBackupSources(m)
-      case Right(m) => backupDestinationsVBox.children = buildBackupDestinations(m)
-    }
-    Store.onChange(handler)
-  }
-
   private def buildBackupSources(backupSourceModels: Seq[BackupSource]): mutable.MutableList[Node] = {
-    if (Store.backupSources.isEmpty)
+    if (backupSourceModels.isEmpty)
       mutable.MutableList(buildTextField("No backup sources added"))
-    else
-      Store.backupSources.map(backupSource => buildTextField(backupSource.name))
+    else {
+      val backupSources = backupSourceModels.map(backupSource => buildTextField(backupSource.name))
+      mutable.MutableList(backupSources: _*)
+    }
   }
 
   private def buildBackupDestinations(backupDestinationModels: Seq[BackupDestination]): mutable.MutableList[Node] = {
-    if (Store.backupDestinations.isEmpty)
+    if (backupDestinationModels.isEmpty)
       mutable.MutableList(buildTextField("No backup destinations added"))
-    else
-      Store.backupDestinations.map(backupDestination => buildTextField(backupDestination.name))
+    else {
+      val backupDestinations = backupDestinationModels.map(backupDestination => buildTextField(backupDestination.name))
+      mutable.MutableList(backupDestinations: _*)
+    }
   }
 
   private def buildSectionLabel(textContent: String): Label = {

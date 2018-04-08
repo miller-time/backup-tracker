@@ -4,7 +4,7 @@ import scalafx.scene.control.TabPane
 
 object Manager extends TabPane {
 
-  def apply() = {
+  def apply(): TabPane = {
     val backupSources = BackupSourcesTab()
     val backupDestinations = BackupDestinationsTab()
 

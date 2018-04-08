@@ -249,7 +249,8 @@
 * sources: path
 * backups: path
 * backup_sources: backup, source, last_synced
-* store these in typesafe config file?
+* store in json file
+* use **akka** for communicating state changes!
 
 ## Computations
 
