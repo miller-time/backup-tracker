@@ -1,18 +1,18 @@
 /*
  * Monitor
 **/
-.monitor {
-  -fx-padding: 4pt;
+.main {
+  -fx-padding: 8pt;
   -fx-background-color: black;
 }
 
-.monitor-header {
+.header {
   -fx-font-size: 14pt;
   -fx-font-weight: bold;
   -fx-text-fill: white;
 }
 
-.monitor-text {
+.text {
   -fx-background-color: transparent;
   -fx-background-insets: 0;
   -fx-font-size: 11pt;

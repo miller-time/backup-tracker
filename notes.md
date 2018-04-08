@@ -246,9 +246,8 @@
 
 ## Data Backend
 
-* sources: path
-* backups: path
-* backup_sources: backup, source, last_synced
+* backups: source (path), destination (path)
+  (save sources/destinations for re-use)
 * store in json file
 * use **akka** for communicating state changes!
 

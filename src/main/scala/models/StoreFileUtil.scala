@@ -13,33 +13,20 @@ object StoreFileUtil {
   private val storeFilePath = System.getProperty("user.home") + File.separator + ".backup-tracker.json"
 
   case class StoreContents(
-    backupSources: List[String] = List.empty,
-    backupDestinations: List[String] = List.empty
+    backups: List[(String, String)] = List.empty,
+    backupSources: List[String] = List.empty
   )
 
   def read(): StoreContents = {
     readStoreFile() match {
-      case Some(fileContents) => {
-        parse(fileContents) match {
-          case parsed: JObject =>
-            val backupSources = parsed.values("sources") match {
-              case parsedSources: List[_] => parsedSources.map(_.toString)
-              case _ =>
-                println("[warning] no sources found in store file")
-                List[String]()
-            }
-            val backupDestinations = parsed.values("destinations") match {
-              case parsedDestinations: List[_] => parsedDestinations.map(_.toString)
-              case _ =>
-                println("[warning] no destinations found in store file")
-                List[String]()
-            }
-            StoreContents(backupSources, backupDestinations)
-          case _ =>
-            println("[warning] unable to parse store file")
+      case Some(fileContents) =>
+        try {
+          parseStoreFileContents(fileContents)
+        } catch {
+          case _: NoSuchElementException =>
+            println("[info] unable to parse store file")
             StoreContents()
         }
-      }
       case None =>
         println("[info] no store file found")
         StoreContents()
@@ -48,9 +35,36 @@ object StoreFileUtil {
 
   def write(storeContents: StoreContents) = {
     writeStoreFile(pretty(render(
-      ("sources" -> storeContents.backupSources) ~
-      ("destinations" -> storeContents.backupDestinations)
+      ("backups" -> storeContents.backups.map { b =>
+        ("source" -> b._1) ~
+        ("destination" -> b._2)
+      }) ~
+      ("sources" -> storeContents.backupSources)
     )))
+  }
+
+  private def parseStoreFileContents(fileContents: String): StoreContents = {
+    parse(fileContents) match {
+      case parsed: JObject =>
+        val backups: List[(String, String)] = parsed.values("backups") match {
+          case parsedBackups: List[_] =>
+            parsedBackups.asInstanceOf[List[Map[String, String]]]
+              .map(backup => (backup("source"), backup("destination")))
+          case _ =>
+            println("[warning] no backups found in store file")
+            List[(String, String)]()
+        }
+        val backupSources = parsed.values("sources") match {
+          case parsedSources: List[_] => parsedSources.map(_.toString)
+          case _ =>
+            println("[warning] no sources found in store file")
+            List[String]()
+        }
+        StoreContents(backups, backupSources)
+      case _ =>
+        println("[warning] unable to parse store file")
+        StoreContents()
+    }
   }
 
   private def readStoreFile(): Option[String] = {

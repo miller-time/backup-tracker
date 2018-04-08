@@ -1,4 +1,4 @@
 package models
 
-case class BackupSource(name: String)
-case class BackupDestination(name: String)
+case class Backup(sourcePath: String, destinationPath: String)
+case class BackupSource(path: String)

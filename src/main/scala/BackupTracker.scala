@@ -1,14 +1,14 @@
 import actors.BackupTrackerActors
-import actors.StoreActor.{AddDestinations, AddSources}
-import manager.Manager
+import actors.StoreActor.{AddBackups, AddSources}
+import backups.Backups
 import models._
 import monitor.Monitor
-import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
-import scalafx.scene.control.SplitPane
+import scalafx.scene.control.{Tab, TabPane}
 import scalafx.scene.layout.{BorderPane, VBox}
+import sources.Sources
 
 object BackupTracker extends JFXApp {
 
@@ -20,10 +20,23 @@ object BackupTracker extends JFXApp {
       stylesheets = List(getClass.getResource("backupTracker.css").toExternalForm)
       root = new BorderPane {
         top = new VBox {
-          center = new SplitPane {
-            items ++= List(
-              Manager(),
-              Monitor()
+          center = new TabPane {
+            tabs = List(
+              new Tab {
+                text = "Monitor"
+                closable = false
+                content = Monitor()
+              },
+              new Tab {
+                text = "Sources"
+                closable = false
+                content = Sources()
+              },
+              new Tab {
+                text = "Backups"
+                closable = false
+                content = Backups()
+              }
             )
           }
         }
@@ -35,8 +48,8 @@ object BackupTracker extends JFXApp {
     val store = BackupTrackerActors.store
 
     val initialContents = StoreFileUtil.read()
+    store ! AddBackups(initialContents.backups.map(b => Backup(b._1, b._2)))
     store ! AddSources(initialContents.backupSources.map(s => BackupSource(s)))
-    store ! AddDestinations(initialContents.backupDestinations.map(d => BackupDestination(d)))
   }
 
   override def stopApp() = {
