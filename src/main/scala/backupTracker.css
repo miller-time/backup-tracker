@@ -18,3 +18,7 @@
   -fx-font-size: 11pt;
   -fx-text-fill: white;
 }
+
+.sleek-button {
+  -fx-background-color: black;
+}
